@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{099D7159-F8C6-46AD-9AB0-E7948AB4C1DF}</ProjectGuid>
+    <ProjectGuid>{C7CB6765-806C-4470-9650-46151CD4C538}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>OpenFCM</RootNamespace>
-    <AssemblyName>OpenFCM</AssemblyName>
+    <RootNamespace>library</RootNamespace>
+    <AssemblyName>library</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
