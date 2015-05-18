@@ -8,8 +8,8 @@
     <ProjectGuid>{C7CB6765-806C-4470-9650-46151CD4C538}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>library</RootNamespace>
-    <AssemblyName>library</AssemblyName>
+    <RootNamespace>libfcm</RootNamespace>
+    <AssemblyName>libfcm</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Concept.cs" />
     <Compile Include="FCM.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
