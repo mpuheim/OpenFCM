@@ -40,10 +40,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Concept.cs" />
-    <Compile Include="FCM.cs" />
+    <Compile Include="BaseClasses\Config.cs" />
+    <Compile Include="BaseClasses\MF.cs" />
+    <Compile Include="Interfaces\IRelation.cs" />
+    <Compile Include="BaseClasses\Concept.cs" />
+    <Compile Include="BaseClasses\FCM.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RelationClasses\RSimple.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

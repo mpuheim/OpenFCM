@@ -15,12 +15,16 @@ namespace libfcm
     */
     #endregion //INFO
 
+    /// <summary>
+    /// Represents fuzzy cognitive map. Provides functions to add, connect and configure map concepts and functions to calculate map updates.
+    /// </summary>
     public class FCM
     {
-        #region MEMBERS
+        #region PROPERTIES & FIELDS
         //----------------------------------------------------//
         
         private List<Concept> concepts; //list of concepts
+        private Config config;          //current FCM configuration
 
         #endregion //-----------------------------------------//
 
@@ -103,7 +107,36 @@ namespace libfcm
         /// Set current activation value of the concept
         /// </summary>
         /// <param name="name">concept name</param>
-        public void set(string name)
+        /// <param name="value">new activation value of concept</param>
+        public void set(string name, double value)
+        {
+            //TODO
+        }
+
+        #endregion //-----------------------------------------//
+
+        #region CONCEPTS - CONFIGURE RELATIONS
+        //----------------------------------------------------//
+
+        /// <summary>
+        /// Configuration of concept relations
+        /// </summary>
+        /// <param name="param">param</param>
+        public void relation(string param)
+        {
+            //TODO
+        }
+
+        #endregion //-----------------------------------------//
+
+        #region CONCEPTS - MF CONFIGURATION
+        //----------------------------------------------------//
+
+        /// <summary>
+        /// Configuration of concept membership functions
+        /// </summary>
+        /// <param name="param">param</param>
+        public void mf(string param)
         {
             //TODO
         }
@@ -131,6 +164,17 @@ namespace libfcm
         /// </summary>
         /// <returns>string containing names of all concepts separated by semicolons</returns>
         public string list()
+        {
+            //TODO
+            return "concepts";
+        }
+
+        /// <summary>
+        /// Return string containing names of all concepts preceding single concept specified by name
+        /// </summary>
+        /// <param name="name">concept name</param>
+        /// <returns>string containing names of all preceding concepts separated by semicolons</returns>
+        public string listPreceding(string name)
         {
             //TODO
             return "concepts";
