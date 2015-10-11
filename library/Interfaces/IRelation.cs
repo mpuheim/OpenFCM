@@ -13,12 +13,7 @@ namespace libfcm
         #region REQUIRED PROPERTIES
         //----------------------------------------------------//
 
-        //capabilities of relation
-        bool supportsBackprop { get; set; }       //can use error backpropagation learning.
-        bool supportsSerialization { get; set; }  //can serialize and present model parameters (e.g. for EA learning).
-        bool supportsIncrementality { get; set; } //can add/remove concepts without change to the current model.
-
-        //connected preceding concepts
+        //connected previous concepts
         List<Concept> previous { get; set; }
 
         #endregion //-----------------------------------------//
@@ -44,28 +39,36 @@ namespace libfcm
         void detach(Concept concept);
 
         /// <summary>
-        /// Get information about relation.
+        /// Get information about relation (optionaly specified by provided parameters).
         /// </summary>
+        /// <param name="parameters">optional function parameters</param>
         /// <returns>relation information in string format</returns>
-        string get();
-
-        /// <summary>
-        /// Get information about relation specific to provided preceding concept.
-        /// </summary>
-        /// <param name="concept">specified preceding concept</param>
-        /// <returns>relation information in string format</returns>
-        string get(Concept concept);
+        string get(params string[] parameters);
 
         /// <summary>
         /// Set relation using provided data
         /// </summary>
-        /// <param name="formatString">relation information in string format</param>
-        void set(string formatString);
+        /// <param name="parameters">optional function parameters</param>
+        /// <returns>0 if successfull, -1 otherwise</returns>
+        int set(params string[] parameters);
 
         /// <summary>
         /// Propagate inputs through relation and calculate new value for the following concept.
         /// </summary>
         double propagate();
+
+        /// <summary>
+        /// Error delta backpropagation
+        /// </summary>
+        /// <param name="delta">error delta</param>
+        void backprop(double delta);
+
+        /// <summary>
+        /// Relation adaptation/learning via the "delta rule"
+        /// </summary>
+        /// <param name="delta">error delta</param>
+        /// <param name="delta">learning rate</param>
+        void adapt(double delta, double gama);
 
         #endregion //-----------------------------------------//
     }

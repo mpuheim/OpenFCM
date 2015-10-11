@@ -6,7 +6,7 @@ using System.Text;
 namespace libfcm
 {
     /// <summary>
-    /// Represents list FCM configuration options.
+    /// Represents list of FCM configuration options.
     /// </summary>
     internal class Config
     {

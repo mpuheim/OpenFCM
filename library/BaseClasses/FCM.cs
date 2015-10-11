@@ -26,6 +26,9 @@ namespace libfcm
         private List<Concept> concepts; //list of concepts
         private Config config;          //current FCM configuration
 
+        private Concept c1;             //helper variable
+        private Concept c2;             //helper variable
+
         #endregion //-----------------------------------------//
 
         #region CONSTRUCTOR
@@ -48,18 +51,32 @@ namespace libfcm
         /// Add new concept to the FCM
         /// </summary>
         /// <param name="name">unique name</param>
-        public void add(string name)
+        /// <returns>0 if successfull, -1 otherwise</returns>
+        public int add(string name)
         {
-            //TODO
+            if (string.IsNullOrEmpty(name))
+                return -1;
+            if (concepts.Exists(c => c.name == name))
+                return -1;
+            concepts.Add(new Concept(name));
+            return 0;
         }
 
         /// <summary>
-        /// Remove concept from FCM
+        /// Remove concept from the FCM
         /// </summary>
         /// <param name="name">name</param>
-        public void remove(string name)
+        /// <returns>0 if concept is removed, -1 otherwise</returns>
+        public int remove(string name)
         {
-            //TODO
+            if (string.IsNullOrEmpty(name))
+                return -1;
+            if (concepts.Exists(c => c.name == name) == false)
+                return 0;
+            int removed = concepts.RemoveAll(c => c.name == name);
+            if (removed == 0)
+                return -1;
+            return 0;
         }
 
         #endregion //-----------------------------------------//
@@ -72,9 +89,19 @@ namespace libfcm
         /// </summary>
         /// <param name="from">name of the preceding concept</param>
         /// <param name="name">name of the following concept</param>
-        public void connect(string from, string to)
+        /// <returns>0 if successfull, -1 otherwise</returns>
+        public int connect(string from, string to)
         {
-            //TODO
+            if (string.IsNullOrEmpty(from) || string.IsNullOrEmpty(to))
+                return -1;
+            c1 = concepts.FirstOrDefault(c => c.name == from);
+            c2 = concepts.FirstOrDefault(c => c.name == to);
+            if (c1 == null || c2 == null)
+                return -1;
+            if (c2.relation.previous.Contains(c2))
+                return -1;
+            c2.relation.attach(c1);
+            return 0;
         }
 
         /// <summary>
@@ -82,9 +109,19 @@ namespace libfcm
         /// </summary>
         /// <param name="from">name of the preceding concept</param>
         /// <param name="name">name of the following concept</param>
-        public void disconnect(string from, string to)
+        /// <returns>0 if successfull, -1 otherwise</returns>
+        public int disconnect(string from, string to)
         {
-            //TODO
+            if (string.IsNullOrEmpty(from) || string.IsNullOrEmpty(to))
+                return -1;
+            c1 = concepts.FirstOrDefault(c => c.name == from);
+            c2 = concepts.FirstOrDefault(c => c.name == to);
+            if (c1 == null || c2 == null)
+                return -1;
+            if (c2.relation.previous.Contains(c2) == false)
+                return -1;
+            c2.relation.detach(c1);
+            return 0;
         }
 
         #endregion //-----------------------------------------//
@@ -96,11 +133,15 @@ namespace libfcm
         /// Get current activation value of the concept
         /// </summary>
         /// <param name="name">concept name</param>
-        /// <returns>concept activation value</returns>
+        /// <returns>concept activation value or NaN if no such concept exists</returns>
         public double get(string name)
         {
-            //TODO
-            return 1.0;
+            if (string.IsNullOrEmpty(name))
+                return double.NaN;
+            c1 = concepts.FirstOrDefault(c => c.name == name);
+            if (c1 == null)
+                return double.NaN;
+            return c1.value;
         }
 
         /// <summary>
@@ -108,23 +149,16 @@ namespace libfcm
         /// </summary>
         /// <param name="name">concept name</param>
         /// <param name="value">new activation value of concept</param>
-        public void set(string name, double value)
+        /// <returns>0 if successfull, -1 otherwise</returns>
+        public int set(string name, double value)
         {
-            //TODO
-        }
-
-        #endregion //-----------------------------------------//
-
-        #region CONCEPTS - CONFIGURE RELATIONS
-        //----------------------------------------------------//
-
-        /// <summary>
-        /// Configuration of concept relations
-        /// </summary>
-        /// <param name="param">param</param>
-        public void relation(string param)
-        {
-            //TODO
+            if (string.IsNullOrEmpty(name))
+                return -1;
+            c1 = concepts.FirstOrDefault(c => c.name == name);
+            if (c1 == null)
+                return -1;
+            c1.value = value;
+            return 0;
         }
 
         #endregion //-----------------------------------------//
@@ -143,6 +177,43 @@ namespace libfcm
 
         #endregion //-----------------------------------------//
 
+        #region RELATIONS - GET/SET VALUE
+        //----------------------------------------------------//
+
+        /// <summary>
+        /// Get concept relation
+        /// </summary>
+        /// <param name="name">name of the following concept</param>
+        /// <param name="param">optional relation query information (such as specific preceding concept name)</param>
+        /// <returns>specified relation information or error message</returns>
+        public string getRelation(string name, params string[] parameters)
+        {
+            if (string.IsNullOrEmpty(name))
+                return "error - wrong concept name";
+            c1 = concepts.FirstOrDefault(c => c.name == name);
+            if (c1 == null)
+                return "error - no such concept";
+            return c1.relation.get(parameters);
+        }
+
+        /// <summary>
+        /// Set concept relation
+        /// </summary>
+        /// <param name="name">name of the following concept</param>
+        /// <param name="param">optional relation query information (e.g.: preceding concept name, weight value)</param>
+        /// <returns>0 if successfull, -1 otherwise</returns>
+        public int setRelation(string name, params string[] parameters)
+        {
+            if (string.IsNullOrEmpty(name))
+                return -1;
+            c1 = concepts.FirstOrDefault(c => c.name == name);
+            if (c1 == null)
+                return -1;
+            return c1.relation.set(parameters);
+        }
+
+        #endregion //-----------------------------------------//
+
         #region MAP UPDATE
         //----------------------------------------------------//
 
@@ -151,7 +222,10 @@ namespace libfcm
         /// </summary>
         public void update()
         {
-            //TODO
+            foreach (Concept c in concepts)
+                c.newValue = c.relation.propagate();
+            foreach (Concept c in concepts)
+                c.value = c.newValue;
         }
 
         #endregion //-----------------------------------------//
@@ -165,8 +239,14 @@ namespace libfcm
         /// <returns>string containing names of all concepts separated by semicolons</returns>
         public string list()
         {
-            //TODO
-            return "concepts";
+            //return empty string if there are no concepts
+            if (concepts.Count == 0)
+                return "";
+            //return list of concepts
+            List<string> toReturn = new List<string>(concepts.Count());
+            foreach (Concept c in concepts)
+                    toReturn.Add(c.name);
+            return string.Join(";", toReturn);
         }
 
         /// <summary>
@@ -176,8 +256,17 @@ namespace libfcm
         /// <returns>string containing names of all preceding concepts separated by semicolons</returns>
         public string listPreceding(string name)
         {
-            //TODO
-            return "concepts";
+            if (string.IsNullOrEmpty(name))
+                return "error - wrong concept name";
+            c1 = concepts.FirstOrDefault(c => c.name == name);
+            if (c1 == null)
+                return "error - no such concept";
+            if (c1.relation.previous.Count == 0)
+                return "";
+            List<string> toReturn = new List<string>(c1.relation.previous.Count());
+            foreach (Concept c in c1.relation.previous)
+                toReturn.Add(c.name);
+            return string.Join(";", toReturn);
         }
 
         #endregion //-----------------------------------------//
@@ -186,7 +275,7 @@ namespace libfcm
         //----------------------------------------------------//
 
         /// <summary>
-        /// Sample method template
+        /// Sample method template - NOT USED
         /// </summary>
         /// <param name="first">first param</param>
         /// <param name="second">second param</param>
