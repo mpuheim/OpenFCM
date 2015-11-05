@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace libfcm
+namespace libfcm.Relations
 {
     /// <summary>
     /// Represents MISO relations between preceding concepts and single following concept. (MISO - multiple input, single output)
     /// This class implements standard linear weighted FCM connection.
     /// </summary>
-    public class RSimple : IRelation
+    public class RSimple : Interfaces.IRelation
     {
         #region PROPERTIES & FIELDS
         //----------------------------------------------------//

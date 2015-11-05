@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using libfcm.Interfaces;
 
 namespace libfcm
 {
@@ -28,8 +29,8 @@ namespace libfcm
         internal IRelation relation;        //concept relations
 
         //membership functions
-        internal MF inputMF;                //function used for fuzzification
-        internal MF outputMF;               //function used for defuzzification
+        internal IFunction inputMF;         //function used for fuzzification
+        internal IFunction outputMF;        //function used for defuzzification
 
         #endregion //-----------------------------------------//
 
@@ -44,10 +45,10 @@ namespace libfcm
             this.newValue = 0;
             this.value = 0;
             //create relations
-            this.relation = new RSimple();
+            this.relation = new Relations.RSimple();
             //set membership functions
-            this.inputMF = new MF();
-            this.outputMF = new MF();
+            this.inputMF = new Functions.PiecewiseLinear();
+            this.outputMF = new Functions.PiecewiseLinear();
         }
 
         #endregion //-----------------------------------------//

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace libfcm
+namespace libfcm.Interfaces
 {
     /// <summary>
-    /// Represents MISO relations between preceding concepts and single following concept. (MISO - multiple input, single output)
+    /// Interface for MISO relation (multiple input, single output) between preceding concepts and single following concept.
     /// </summary>
-    internal interface IRelation
+    public interface IRelation
     {
         #region REQUIRED PROPERTIES
         //----------------------------------------------------//
@@ -24,6 +24,7 @@ namespace libfcm
         /// <summary>
         /// Return relation model information.
         /// </summary>
+        /// <returns>string containing relation model information</returns>
         string info();
         
         /// <summary>
