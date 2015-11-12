@@ -22,6 +22,18 @@ namespace simulator
         public MainWindow()
         {
             InitializeComponent();
+            
+            /*TESTING CODE*/
+            libfcm.Functions.PiecewiseLinear f = new libfcm.Functions.PiecewiseLinear();
+            f.set("0;0 2;2 4;0");
+            libfcm.Functions.PiecewiseLinear i = (libfcm.Functions.PiecewiseLinear) f.getInverse();
+            MessageBox.Show(f.get() + " | " + i.get()
+                            + System.Environment.NewLine +
+                            f.piece.Count.ToString() + " | " + i.piece.Count.ToString());
+            MessageBox.Show(f.evaluate(5).ToString());
+            //terminate application
+            Environment.Exit(-1);
+            /*END OF TESTING CODE*/
         }
     }
 }

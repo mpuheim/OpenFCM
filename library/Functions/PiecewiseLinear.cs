@@ -14,7 +14,7 @@ namespace libfcm.Functions
         //----------------------------------------------------//
 
         //list if connected linear functions
-        private List<Piece> piece { get; set; }
+        public List<Piece> piece { get; set; } //TO BE SET TO PRIVATE!!!!!!!!!
 
         //required computations precision
         private static double precision = 0.0000001;
@@ -54,7 +54,7 @@ namespace libfcm.Functions
         {
             if (piece.Count() < 1)
                 return "";
-            List<Point> points = pieces2points();
+            List<Point> points = pieces2points(this.piece);
             List<string> coords = new List<string>();
             foreach (Point p in points)
                 coords.Add(p.x.ToString() + ";" + p.y.ToString());
@@ -114,7 +114,7 @@ namespace libfcm.Functions
             if (pointObjects.Count() < 2)
                 return -1;
             //generate function pieces
-            points2pieces(pointObjects);
+            this.piece = points2pieces(pointObjects);
             //merge consequent pieces with same slope
             this.simplify();
             //success :)
@@ -127,11 +127,11 @@ namespace libfcm.Functions
         /// <returns>either PiecewiseLinear function object or null</returns>
         public Interfaces.IFunction getDerivative()
         {
-            //return null if function is not set
-            if (piece.Count() == 0)
-                return null;
             //declare function object
             PiecewiseLinear derivative = new PiecewiseLinear();
+            //return if function is not set
+            if (piece.Count() == 0)
+                return derivative;
             //calculate derivatives of individual pieces
             Point start, end;
             foreach (Piece p in piece)
@@ -152,12 +152,35 @@ namespace libfcm.Functions
         /// <returns>either PiecewiseLinear function object or null</returns>
         public Interfaces.IFunction getInverse()
         {
-            //get copy of the Piece List
-            //MANUALY INVERT LIST!!!
-            //List<Piece> copy = new List<Piece>();
-            //foreach (Piece p in piece)
-
-            return this;
+            //declare function object
+            PiecewiseLinear inverse = new PiecewiseLinear();
+            //return if function is not set
+            if (piece.Count() == 0)
+                return inverse;
+            //get list of points
+            List<Point> points = this.pieces2points(this.piece);
+            //invert point coordinates
+            double tmc;
+            foreach (Point p in points)
+            {
+                tmc = p.x;
+                p.x = p.y;
+                p.y = tmc;
+            }
+            //generate inverted pieces
+            inverse.piece = this.points2pieces(points);
+            //correct order of start and end points
+            for (int i = 0; i < inverse.piece.Count; i++)
+                if (inverse.piece[i].start.x > inverse.piece[i].end.x)
+                    inverse.piece[i] = new Piece(inverse.piece[i].end, inverse.piece[i].start);
+            //sort pieces according to the x-coordinate
+            inverse.piece.Sort((a, b) => a.start.x.CompareTo(b.start.x));
+            //merge competing pieces
+            inverse.merge();
+            //merge consequent pieces with same slope
+            inverse.simplify();
+            //return inverse function
+            return inverse;
         }
 
         /// <summary>
@@ -165,10 +188,14 @@ namespace libfcm.Functions
         /// </summary>
         /// <param name="parameters">input</param>
         /// <returns>output</returns>
-        public double evaluate(double input)
+        public double evaluate(double input) //TODO
         {
-            //TODO
-            return 0;
+            if (input < this.piece.First().end.x)
+                return this.piece.First().eval(input);
+            foreach (Piece p in this.piece)
+                if (input >= p.start.x && input < p.end.x)
+                    return p.eval(input);
+            return this.piece.Last().eval(input); ;
         }
 
         #endregion //-----------------------------------------//
@@ -201,6 +228,89 @@ namespace libfcm.Functions
         }
 
         /// <summary>
+        /// Merges (averages) pieces which cover the same x-range.
+        /// </summary>
+        private void merge() //TODO - Add proper power of each piece when averaging pieces
+        {
+            List<Piece> newPieces = new List<Piece>();
+            List<Piece> pcs = this.piece;
+            Piece piece1, piece2;
+            Point p1, p2;
+            int k = 0;
+            while (k < pcs.Count - 1)
+            {
+                if (pcs[k].end.x > pcs[k + 1].start.x)
+                {
+                    //check for segment length
+                    if (Math.Abs(pcs[k].end.x - pcs[k + 1].start.x) < precision)
+                    {
+                        pcs[k + 1].start.x = pcs[k].end.x;
+                        k++;
+                        continue;
+                    }
+                    //determine which of the original pieces starts first
+                    if (pcs[k].start.x <= pcs[k + 1].start.x)
+                    {
+                        piece1 = pcs[k];
+                        piece2 = pcs[k + 1];
+                    }
+                    else
+                    {
+                        piece1 = pcs[k + 1];
+                        piece2 = pcs[k];
+                    }
+                    //clear list of newly merged pieces
+                    newPieces.Clear();
+                    //add first merged piece
+                    if (Math.Abs(piece1.start.x - piece2.start.x) >= precision)
+                    {
+                        p1 = new Point(piece1.start.x, piece1.start.y);
+                        p2 = new Point(piece2.start.x, piece1.eval(piece2.start.x));
+                        newPieces.Add(new Piece(p1, p2));
+                        piece1.start.x = piece2.start.x;
+                    }
+                    else
+                        piece2.start.x = piece1.start.x;
+                    //determine which of the original pieces ends last
+                    if (pcs[k].end.x >= pcs[k + 1].end.x)
+                    {
+                        piece1 = pcs[k];
+                        piece2 = pcs[k + 1];
+                    }
+                    else
+                    {
+                        piece1 = pcs[k + 1];
+                        piece2 = pcs[k];
+                    }
+                    //add second merged piece
+                    if (Math.Abs(piece1.start.x - piece2.end.x) >= precision)
+                    {
+                        p1 = new Point(piece1.start.x, (piece1.eval(piece1.start.x) + piece2.eval(piece1.start.x)) / 2);
+                        p2 = new Point(piece2.end.x, (piece1.eval(piece2.end.x) + piece2.end.y) / 2);
+                        newPieces.Add(new Piece(p1, p2));
+                        piece1.start.x = piece2.end.x;
+                    }
+                    //add last merged piece
+                    if (Math.Abs(piece1.start.x - piece1.end.x) >= precision)
+                    {
+                        p1 = new Point(piece1.start.x, piece1.eval(piece1.start.x));
+                        p2 = new Point(piece1.end.x, piece1.end.y);
+                        newPieces.Add(new Piece(p1, p2));
+                    }
+                    //remove both original pieces from list
+                    pcs.RemoveAt(k);
+                    pcs.RemoveAt(k);
+                    //add new merged pieces to the list
+                    newPieces.Reverse();
+                    foreach (Piece p in newPieces)
+                        pcs.Insert(k, p);
+                }
+                else
+                    k++;
+            }
+        }
+
+        /// <summary>
         /// Remove duplicit & close points from provided List.
         /// </summary>
         /// <param name="points">List of Point objects sorted by 'x' attribute</param>
@@ -225,17 +335,17 @@ namespace libfcm.Functions
         /// Convert list of points into list of function pieces.
         /// </summary>
         /// <param name="points">List of (at least two) Point objects sorted by 'x' attribute</param>
-        private void points2pieces(List<Point> points)
+        private List<Piece> points2pieces(List<Point> points)
         {
+            //new piece list
+            List<Piece> piece = new List<Piece>();
             //point count check
             if (points.Count() < 2)
-                return;
+                return null;
             //local variables
             int i = 0;
             int j = 1;
             int c = points.Count();
-            //remove existing function pieces (if any)
-            piece.Clear();
             //handle discontinued initial point
             if (Math.Abs(points[0].x - points[1].x) < precision)
             {
@@ -261,13 +371,15 @@ namespace libfcm.Functions
                 Point additionalEndPoint = new Point(points[c - 1].x + 1, points[c - 1].y);
                 piece.Add(new Piece(points[c - 1], additionalEndPoint));
             }
+            //return list of pieces
+            return piece;
         }
 
         /// <summary>
         /// Convert function pieces into list of points
         /// </summary>
         /// <returns>List of Point objects sorted by 'x' attribute</returns>
-        private List<Point> pieces2points()
+        private List<Point> pieces2points(List<Piece> piece)
         {
             //points to return
             List<Point> points = new List<Point>();
@@ -275,18 +387,17 @@ namespace libfcm.Functions
             if (piece.Count < 1)
                 return points;
             //always add initial point
-            points.Add(piece.First().start);
+            points.Add(new Point(piece.First().start));
             //add remaining points
             Piece prev = null;
             foreach (Piece curr in piece)
             {
                 //add start point only in case of discontinuity
                 if (prev != null &&
-                    Math.Abs(prev.end.y - curr.start.y) >= precision &&
-                    Math.Abs(prev.end.x - curr.start.x) < precision)
-                    points.Add(curr.start);
+                    Math.Abs(prev.end.y - curr.start.y) >= precision)
+                    points.Add(new Point(curr.start));
                 //add end point of each piece
-                points.Add(curr.end);
+                points.Add(new Point(curr.end));
                 //store reference to this piece
                 prev = curr;
             }
@@ -301,7 +412,7 @@ namespace libfcm.Functions
         /// <summary>
         /// Piece helper class.
         /// </summary>
-        private class Piece
+        public class Piece //TO BE SET TO PRIVATE!!!!!!!!!
         {
             public Point start;
             public Point end;
@@ -323,12 +434,17 @@ namespace libfcm.Functions
                     b = this.end.y;
                 }
             }
+
+            public double eval(double x)
+            {
+                return this.a*x+this.b;
+            }
         }
 
         /// <summary>
         /// Point helper class.
         /// </summary>
-        private class Point
+        public class Point //TO BE SET TO PRIVATE!!!!!!!!!
         {
             public double x;
             public double y;

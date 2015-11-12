@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "library", "library\library.csproj", "{C7CB6765-806C-4470-9650-46151CD4C538}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simulator", "simulator\simulator.csproj", "{C35C91D2-0537-42F0-933D-F322F6863254}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7CB6765-806C-4470-9650-46151CD4C538} = {C7CB6765-806C-4470-9650-46151CD4C538}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
