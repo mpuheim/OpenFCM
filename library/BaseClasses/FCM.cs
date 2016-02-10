@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace libfcm
 {
@@ -98,7 +96,7 @@ namespace libfcm
             c2 = concepts.FirstOrDefault(c => c.name == to);
             if (c1 == null || c2 == null)
                 return -1;
-            if (c2.relation.previous.Contains(c2))
+            if (c2.relation.previous.Contains(c1))
                 return -1;
             c2.relation.attach(c1);
             return 0;
@@ -118,7 +116,7 @@ namespace libfcm
             c2 = concepts.FirstOrDefault(c => c.name == to);
             if (c1 == null || c2 == null)
                 return -1;
-            if (c2.relation.previous.Contains(c2) == false)
+            if (c2.relation.previous.Contains(c1) == false)
                 return -1;
             c2.relation.detach(c1);
             return 0;
