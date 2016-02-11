@@ -14,7 +14,7 @@ namespace libfcm
     #endregion //INFO
 
     /// <summary>
-    /// Represents fuzzy cognitive map. Provides functions to add, connect and configure map concepts and functions to calculate map updates.
+    /// Represents fuzzy cognitive map. Provides methods to add, connect and configure map concepts and to calculate map updates.
     /// </summary>
     public class FCM
     {
@@ -42,7 +42,7 @@ namespace libfcm
 
         #endregion //-----------------------------------------//
 
-        #region CONCEPTS - ADD/REMOVE
+        #region CONCEPTS - ADD/REMOVE/RENAME
         //----------------------------------------------------//
 
         /// <summary>
@@ -74,6 +74,22 @@ namespace libfcm
             int removed = concepts.RemoveAll(c => c.name == name);
             if (removed == 0)
                 return -1;
+            return 0;
+        }
+
+        /// <summary>
+        /// Rename concept within the FCM
+        /// </summary>
+        /// <param name="currentname">current name</param>
+        /// <param name="newname">new name</param>
+        /// <returns>0 if concept is renamed, -1 otherwise</returns>
+        public int rename(string currentname, string newname)
+        {
+            if (string.IsNullOrEmpty(currentname) || string.IsNullOrEmpty(newname))
+                return -1;
+            if (concepts.Exists(c => c.name == currentname) == false)
+                return -1;
+            concepts.Find(c => c.name == currentname).name = newname;
             return 0;
         }
 
