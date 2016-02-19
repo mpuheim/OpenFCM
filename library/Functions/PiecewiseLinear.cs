@@ -230,13 +230,23 @@ namespace libfcm.Functions
         /// <summary>
         /// Merges (averages) pieces which cover the same x-range.
         /// </summary>
-        private void merge() //TODO - Add proper power of each piece when averaging pieces
+        private void merge()
         {
-            List<Piece> newPieces = new List<Piece>();
+            //list of former pieces & their relative powers (weights used for merge)
             List<Piece> pcs = this.piece;
+            List<int> pcPower = new List<int>(pcs.Count);
+            //list of new pieces & their relative powers (weights used for merge)
+            List<Piece> newPieces = new List<Piece>();
+            List<int> newPowers = new List<int>();
+            //helper variables
             Piece piece1, piece2;
+            int pow1, pow2;
             Point p1, p2;
             int k = 0;
+            //set initial power of each piece to 1
+            for (int i = 0; i < pcs.Count; i++)
+                pcPower.Add(1);
+            //iteratively merge pieces
             while (k < pcs.Count - 1)
             {
                 if (pcs[k].end.x > pcs[k + 1].start.x)
@@ -251,22 +261,24 @@ namespace libfcm.Functions
                     //determine which of the original pieces starts first
                     if (pcs[k].start.x <= pcs[k + 1].start.x)
                     {
-                        piece1 = pcs[k];
-                        piece2 = pcs[k + 1];
+                        piece1 = pcs[k]; pow1 = pcPower[k];
+                        piece2 = pcs[k + 1]; pow2 = pcPower[k + 1];
                     }
                     else
                     {
-                        piece1 = pcs[k + 1];
-                        piece2 = pcs[k];
+                        piece1 = pcs[k + 1]; pow1 = pcPower[k + 1];
+                        piece2 = pcs[k]; pow2 = pcPower[k];
                     }
-                    //clear list of newly merged pieces
+                    //clear list of newly merged pieces & their respective powers
                     newPieces.Clear();
+                    newPowers.Clear();
                     //add first merged piece
                     if (Math.Abs(piece1.start.x - piece2.start.x) >= precision)
                     {
                         p1 = new Point(piece1.start.x, piece1.start.y);
                         p2 = new Point(piece2.start.x, piece1.eval(piece2.start.x));
                         newPieces.Add(new Piece(p1, p2));
+                        newPowers.Add(pow1);
                         piece1.start.x = piece2.start.x;
                     }
                     else
@@ -274,20 +286,21 @@ namespace libfcm.Functions
                     //determine which of the original pieces ends last
                     if (pcs[k].end.x >= pcs[k + 1].end.x)
                     {
-                        piece1 = pcs[k];
-                        piece2 = pcs[k + 1];
+                        piece1 = pcs[k]; pow1 = pcPower[k];
+                        piece2 = pcs[k + 1]; pow2 = pcPower[k + 1];
                     }
                     else
                     {
-                        piece1 = pcs[k + 1];
-                        piece2 = pcs[k];
+                        piece1 = pcs[k + 1]; pow1 = pcPower[k + 1];
+                        piece2 = pcs[k]; pow2 = pcPower[k];
                     }
                     //add second merged piece
                     if (Math.Abs(piece1.start.x - piece2.end.x) >= precision)
                     {
-                        p1 = new Point(piece1.start.x, (piece1.eval(piece1.start.x) + piece2.eval(piece1.start.x)) / 2);
-                        p2 = new Point(piece2.end.x, (piece1.eval(piece2.end.x) + piece2.end.y) / 2);
+                        p1 = new Point(piece1.start.x, (pow1 * piece1.eval(piece1.start.x) + pow2 * piece2.eval(piece1.start.x)) / (pow1 + pow2));
+                        p2 = new Point(piece2.end.x, (pow1 * piece1.eval(piece2.end.x) + pow2 * piece2.end.y) / (pow1 + pow2));
                         newPieces.Add(new Piece(p1, p2));
+                        newPowers.Add(pow1+pow2);
                         piece1.start.x = piece2.end.x;
                     }
                     //add last merged piece
@@ -296,14 +309,19 @@ namespace libfcm.Functions
                         p1 = new Point(piece1.start.x, piece1.eval(piece1.start.x));
                         p2 = new Point(piece1.end.x, piece1.end.y);
                         newPieces.Add(new Piece(p1, p2));
+                        newPowers.Add(pow1);
                     }
                     //remove both original pieces from list
-                    pcs.RemoveAt(k);
-                    pcs.RemoveAt(k);
+                    pcs.RemoveAt(k); pcPower.RemoveAt(k);
+                    pcs.RemoveAt(k); pcPower.RemoveAt(k);
                     //add new merged pieces to the list
                     newPieces.Reverse();
                     foreach (Piece p in newPieces)
                         pcs.Insert(k, p);
+                    //add new powers to the power list
+                    newPowers.Reverse();
+                    foreach (int i in newPowers)
+                        pcPower.Insert(k, i);
                 }
                 else
                     k++;
