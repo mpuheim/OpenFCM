@@ -367,7 +367,7 @@ namespace libfcm.Functions
             //handle discontinued initial point
             if (Math.Abs(points[0].x - points[1].x) < precision)
             {
-                Point additionalStartPoint = new Point(points[0].x - 1, points[0].y);
+                Point additionalStartPoint = new Point(Double.NegativeInfinity, points[0].y);
                 piece.Add(new Piece(additionalStartPoint, points[0]));
             }
             //create function pieces
@@ -386,7 +386,7 @@ namespace libfcm.Functions
             //handle discontinued end point
             if (Math.Abs(points[c-2].x - points[c-1].x) < precision)
             {
-                Point additionalEndPoint = new Point(points[c - 1].x + 1, points[c - 1].y);
+                Point additionalEndPoint = new Point(Double.PositiveInfinity, points[c - 1].y);
                 piece.Add(new Piece(points[c - 1], additionalEndPoint));
             }
             //return list of pieces
@@ -441,15 +441,30 @@ namespace libfcm.Functions
             {
                 this.start = start;
                 this.end = end;
-                if (Math.Abs(this.start.x - this.end.x) > precision)
+                if (Math.Abs(this.start.x) == Double.PositiveInfinity && Math.Abs(this.end.x) == Double.PositiveInfinity)
                 {
-                    this.a = (this.start.y - this.end.y) / (this.start.x - this.end.x);
-                    this.b = this.start.y - a * this.start.x;
+                    a = 0;
+                    b = (this.start.y + this.end.y) / 2;
                 }
-                else
+                else if (this.start.x == Double.NegativeInfinity)
                 {
                     a = 0;
                     b = this.end.y;
+                }
+                else if (this.end.x == Double.PositiveInfinity)
+                {
+                    a = 0;
+                    b = this.start.y;
+                }
+                else if (Math.Abs(this.start.x - this.end.x) < precision)
+                {
+                    a = 0;
+                    b = (this.start.y+this.end.y)/2;
+                }
+                else
+                {
+                    this.a = (this.start.y - this.end.y) / (this.start.x - this.end.x);
+                    this.b = this.start.y - a * this.start.x;
                 }
             }
 
