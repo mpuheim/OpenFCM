@@ -7,9 +7,9 @@ namespace libfcm.Relations
 {
     /// <summary>
     /// Represents MISO relations between preceding concepts and single following concept. (MISO - multiple input, single output)
-    /// This class implements standard linear weighted FCM connection.
+    /// This class implements standard linear weighted FCM connection with sigmoid thresholding function.
     /// </summary>
-    public class RSimple : Interfaces.IRelation
+    public class RSimpleSigmoid : Interfaces.IRelation
     {
         #region PROPERTIES & FIELDS
         //----------------------------------------------------//
@@ -28,7 +28,7 @@ namespace libfcm.Relations
         /// <summary>
         /// Create new FCM relation
         /// </summary>
-        public RSimple()
+        public RSimpleSigmoid()
         {
             previous = new List<Concept>();
             weights = new List<double>();

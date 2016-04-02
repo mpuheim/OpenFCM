@@ -47,7 +47,8 @@
     <Compile Include="BaseClasses\Concept.cs" />
     <Compile Include="BaseClasses\FCM.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Relations\RSimple.cs" />
+    <Compile Include="Relations\RSimpleAverage.cs" />
+    <Compile Include="Relations\RSimpleSigmoid.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -41,7 +41,7 @@ namespace libfcm
             this.newValue = 0;
             this.value = 0;
             //create relations
-            this.relation = new Relations.RSimple();
+            this.relation = new Relations.RSimpleAverage();
             //set membership functions
             this.inputMF = new Functions.PiecewiseLinear();
             this.outputMF = new Functions.PiecewiseLinear();
